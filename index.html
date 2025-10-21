@@ -509,6 +509,13 @@
         </a>
       </li>
       <li>
+        <a href="./offline_sites/[1.2.0-beta-new].ai-sang-tac-truyen-120beta.netlify.app/ai-sang-tac-truyen-120beta.netlify.app/index.html"
+          data-note="cập nhật thêm MBTI và chỉnh lại Big Five, sửa lỗi API key"
+          data-icon="./offline_sites/[1.2.0-beta-new].ai-sang-tac-truyen-120beta.netlify.app/ntk918.github.io/my-images/dragon_light.webp">
+          AI Sáng Tác Truyện - 1.2.0 [beta-new]
+        </a>
+      </li>
+      <li>
         <a href="./offline_sites/[1.2.0-beta-fix].ai-sang-tac-truyen-120beta.netlify.app/ai-sang-tac-truyen-120beta.netlify.app/index.html"
           data-note="Sửa lại ô nhập nhân vật chính. Thêm nút mở rộng cho định hướng cốt truyện"
           data-icon="./offline_sites/[1.2.0-beta-fix].ai-sang-tac-truyen-120beta.netlify.app/ntk918.github.io/my-images/dragon_light.webp">
@@ -759,7 +766,7 @@
       }
 
       // ===== Build data =====
-      const data = raw.map(a => {
+      const data = raw.map((a, i) => {
         const href = a.getAttribute('href');
         const title = (a.textContent || '').trim().replace(/\s+/g, ' ');
         const noteDefault = a.getAttribute('data-note') || '';
@@ -772,12 +779,11 @@
         if (/vercel/i.test(href)) tags.push('Vercel');
         if (ver) tags.push('v' + ver.replace(/^v/i, ''));
 
-        // 🔥 cache chuỗi chuẩn hoá 1 lần
         const titleNorm = norm(title);
         const noteNorm = norm(note);
         const tagsNorm = tags.map(t => norm(t));
 
-        return { href, title, note, tags, ver, icon, titleNorm, noteNorm, tagsNorm };
+        return { href, title, note, tags, ver, icon, titleNorm, noteNorm, tagsNorm, idx: i };
       });
 
       // ===== Tag bar =====
@@ -1087,19 +1093,7 @@
         });
 
         // … phần sort & render giữ nguyên
-        items.sort((a, b) => {
-          const va = (a.tags.find(t => /^v[0-9.]/i.test(t)) || '').slice(1);
-          const vb = (b.tags.find(t => /^v[0-9.]/i.test(t)) || '').slice(1);
-          if (va && vb && va !== vb) {
-            const pa = va.split(/[^\d]+/).map(n => parseInt(n || '0'));
-            const pb = vb.split(/[^\d]+/).map(n => parseInt(n || '0'));
-            for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
-              const da = pa[i] || 0, db = pb[i] || 0;
-              if (da !== db) return db - da;
-            }
-          }
-          return a.title.localeCompare(b.title, 'vi');
-        });
+        items.sort((a, b) => a.idx - b.idx);
         renderChunked(items, kw);
       }
 
